@@ -3,8 +3,11 @@ package com.example.dicerollerapp.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.dicerollerapp.model.domain.Numbers
 import com.example.dicerollerapp.model.repository.DiceRepository
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class DiceViewModel : ViewModel() {
 
@@ -18,9 +21,13 @@ class DiceViewModel : ViewModel() {
     val imageDice: LiveData<Numbers>
         get() = _imageDice
 
-
     fun getDice(){
-         _numberDice.postValue(repository.getRandomDice())
+        viewModelScope.launch {
+            repository.getRandomDice().collect{
+                _numberDice.value = it
+            }
+        }
+
         _imageDice.postValue(Numbers.values().random())
     }
 }
